@@ -1,5 +1,5 @@
 name =						"Finder Redux"
-version = 					"1.0"
+version = 					"1.0.1"
 description =				"Version: "..version
 author =					"Cunning fox"
 
@@ -13,8 +13,8 @@ all_clients_require_mod     = true
 
 server_filter_tags = {}
 
-icon_atlas = 'atlas.xml'
-icon       = 'icon.tex'
+icon_atlas = "modicon.xml"
+icon       = "modicon.tex"
 
 configuration_options =
 {
