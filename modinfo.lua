@@ -1,5 +1,5 @@
 name =						"Finder Redux"
-version = 					"1.0.1"
+version = 					"1.0.2"
 description =				"Version: "..version
 author =					"Cunning fox"
 

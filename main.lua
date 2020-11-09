@@ -15,7 +15,7 @@ local CHEST_COLOURS = {
 	{0, 0, 1, 1},
 }
 
-local SELECTED_COLOUR = CHEST_COLOURS[]
+local SELECTED_COLOUR = CHEST_COLOURS[TINT_CLR]
 
 -- Idk why regular unpack doesn't work
 local function UnpackColour(clr)
