@@ -65,4 +65,8 @@ function ColourManager:PopColour(ent, reason)
     end
 end
 
+function ColourManager:SetColour(colour)
+    self.colour = colour
+end
+
 return ColourManager

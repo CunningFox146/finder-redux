@@ -20,7 +20,7 @@ icon_atlas = "modicon.xml"
 icon       = "modicon.tex"
 
 local bool_opts = {
-	{description = "Enabled", data = true}, 
+	{description = "Enabled", data = true},
 	{description = "Disabled", data = false},
 }
 local empty_opts = {{description = "", data = 0}}
@@ -41,13 +41,18 @@ configuration_options =
 		label = "Tint colour",
 		hover = "Which colour you want the tint to be?",
 		options = {
-			{description = "Red", data = 1}, 
-			{description = "Green", data = 2},
-			{description = "Blue", data = 3}, 
+			{description = "White", data = 1},
+			{description = "Yellow", data = 2},
+			{description = "Orange", data = 3},
+			{description = "Red", data = 4},
+			{description = "Green", data = 5},
+			{description = "Blue", data = 6},
+			{description = "Ligh blue", data = 7},
+			{description = "Pink", data = 8},
 		},
 		default = 1,
 	},
-	
+
 	{
 		name = "INGREDIENT",
 		label = "Ingredient highlighting",
@@ -55,7 +60,7 @@ configuration_options =
 		options = bool_opts,
 		default = true,
 	},
-	
+
 	{
 		name = "ACTIVEITEM",
 		label = "Active item highlighting",

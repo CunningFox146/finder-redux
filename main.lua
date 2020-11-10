@@ -2,6 +2,7 @@ local TINT_CLR = GetModConfigData("TINT") or 1
 local INGREDIENT_ENABLED = GetModConfigData("INGREDIENT") or true
 local ACTIVEITEM_ENABLED = GetModConfigData("ACTIVEITEM") or true
 
+local AddClassPostConstruct = AddClassPostConstruct
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
@@ -12,13 +13,30 @@ if not env.MODROOT:find("workshop-") then
 end
 
 local CHEST_COLOURS = {
-	{1, 0, 0, 1},
-	{0, 1, 0, 1},
-	{0, 0, 1, 1},
+	{1, 1, 1, 1}, -- White
+	{1, 1, 0, 1}, -- Yellow
+	{1, 0.5, 0, 1}, -- Orange
+	{1, 0, 0, 1}, -- Red
+	{0, 1, 0, 1}, -- Green
+	{0, 0, 1, 1}, -- Blue
+	{0, 1, 1, 1}, -- Light blue
+	{1, 0, 1, 1}, -- Pink
 }
 
 -- Mini-module that works like colouradder component
 local ColourManager = require("colour_manager")(CHEST_COLOURS[TINT_CLR])
+
+-- Console commands for colour changing
+function c_highlightcolour(clr)
+	if type(clr) == "number" then
+		ColourManager:SetColour(CHEST_COLOURS[math.clamp(clr, 1, #CHEST_COLOURS)])
+	elseif type(clr) == "table" then
+		ColourManager:SetColour(clr)
+	else
+		return
+	end
+	print("Colour was updated!")
+end
 
 -- Server calls this on clients
 local HIGHLITED_ENTS = {}
@@ -131,7 +149,13 @@ if TheNet:IsDedicated() then
 	return
 end
 
-local AddClassPostConstruct = env.AddClassPostConstruct
+-- Add our custom command to word predictor
+AddClassPostConstruct("screens/consolescreen", function(self)
+	if self.console_edit then
+		self.console_edit:AddWordPredictionDictionary({words = {"c_highlightcolour"}, delim = "c_", num_chars = 0})
+	end
+end)
+
 local pass = function() return true end
 
 local function FindItem(item)
