@@ -54,7 +54,7 @@ local HIGHLITED_ENTS = {}
 AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT", function(chest)
 	Print("got client rpc", chest)
 	-- Probably a bug? The last argument is allways some random function :|
-	chest = type(chest) ~= "function" and chest or nil
+	chest = (chest and type(chest) ~= "function") and chest or nil
 	if chest then
 		ApplyColour(chest)
 		table.insert(HIGHLITED_ENTS, chest)
@@ -66,7 +66,24 @@ AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT", function(chest)
 	end
 end)
 
-local function FindItem(inst, item)
+-- Custom RPC for active items since we can hover over
+-- Ingredients with active item selected
+local HIGHLITED_ACTIVEITEM_ENTS = {}
+AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT_ACTIVEITEM", function(chest)
+	Print("got client rpc (activeitem)", chest)
+	chest = (chest and type(chest) ~= "function") and chest or nil
+	if chest then
+		ApplyColour(chest)
+		table.insert(HIGHLITED_ACTIVEITEM_ENTS, chest)
+	elseif next(HIGHLITED_ACTIVEITEM_ENTS) then
+		for i, ent in ipairs(HIGHLITED_ACTIVEITEM_ENTS) do
+			ClearColour(ent)
+		end
+		HIGHLITED_ACTIVEITEM_ENTS = {}
+	end
+end)
+
+local function FindItem(inst, item, active_item)
 	local x, y, z = inst.Transform:GetWorldPosition()
 	local ents = TheSim:FindEntities(x, y, z, 20, {"_container"}, {"player", "DECOR", "FX", "NOCLICK", "INLIMBO", "outofreach"})
 	for _, ent in ipairs(ents) do
@@ -75,7 +92,7 @@ local function FindItem(inst, item)
 			-- Send our chest to client
 			-- Not sure if we call it more then once per tick. Needs to be checked
 			Print("Sending client rpc")
-			SendModRPCToClient(GetClientModRPC("FINDER_REDUX", "HIGHLIGHT"), inst, ent)
+			SendModRPCToClient(GetClientModRPC("FINDER_REDUX", active_item and "HIGHLIGHT_ACTIVEITEM" or "HIGHLIGHT"), inst, ent)
 		end
 	end
 end
@@ -99,7 +116,6 @@ end
 -- Item is a prefab string, not an instance
 AddModRPCHandler("FINDER_REDUX", "FIND", function(inst, item, isfoodtag)
 	Print("Got server RPC", item)
-	-- Idk why but the last argument is allways a function, so we just check type of the variable
 	if item then
 		if isfoodtag then
 			FindFoodTag(inst, item)
@@ -108,6 +124,24 @@ AddModRPCHandler("FINDER_REDUX", "FIND", function(inst, item, isfoodtag)
 		end
 	else
 		SendModRPCToClient(GetClientModRPC("FINDER_REDUX", "HIGHLIGHT"), inst, nil)
+	end
+end)
+
+-- Update hover colour to highlight active item
+-- (the item in cursor)
+env.AddComponentPostInit("inventory", function(self)
+	if not self.inst:HasTag("player") then
+		return
+	end
+	
+	local _SetActiveItem = self.SetActiveItem
+	function self:SetActiveItem(item, ...)
+		if item then
+			FindItem(self.inst, item.prefab or nil, true)
+		else
+			SendModRPCToClient(GetClientModRPC("FINDER_REDUX", "HIGHLIGHT_ACTIVEITEM"), self.inst, nil)
+		end
+		return _SetActiveItem(self, item, ...)
 	end
 end)
 
@@ -202,6 +236,6 @@ if pcall(require, "widgets/foodingredientui") then
 			FindItem(nil)
 			return _Close(self, ...) 
 		end
-    end)    
+    end)
 end
 
