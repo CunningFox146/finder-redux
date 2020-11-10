@@ -1,4 +1,6 @@
 local TINT_CLR = GetModConfigData("TINT") or 1
+local INGREDIENT_ENABLED = GetModConfigData("INGREDIENT") or true
+local ACTIVEITEM_ENABLED = GetModConfigData("ACTIVEITEM") or true
 
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
@@ -21,6 +23,9 @@ local ColourManager = require("colour_manager")(CHEST_COLOURS[TINT_CLR])
 -- Server calls this on clients
 local HIGHLITED_ENTS = {}
 AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT", function(chest)
+	if not INGREDIENT_ENABLED then
+		return
+	end
 	Print("got client rpc", chest)
 	-- Probably a bug? The last argument is allways some random function :|
 	chest = (chest and type(chest) ~= "function") and chest or nil
@@ -39,6 +44,9 @@ end)
 -- Ingredients with active item selected
 local HIGHLITED_ACTIVEITEM_ENTS = {}
 AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT_ACTIVEITEM", function(chest)
+	if not ACTIVEITEM_ENABLED then
+		return
+	end
 	Print("got client rpc (activeitem)", chest)
 	chest = (chest and type(chest) ~= "function") and chest or nil
 	if chest then

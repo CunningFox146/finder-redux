@@ -1,5 +1,5 @@
 name =						"Finder Redux"
-version = 					"1.0.2"
+version = 					"1.1"
 description =				"Version: "..version
 author =					"Cunning fox"
 
@@ -11,22 +11,56 @@ api_version 				= 10
 
 all_clients_require_mod     = true
 
-server_filter_tags = {}
+server_filter_tags = {
+	"finder",
+	"finder redux",
+}
 
 icon_atlas = "modicon.xml"
 icon       = "modicon.tex"
 
+local bool_opts = {
+	{description = "Enabled", data = true}, 
+	{description = "Disabled", data = false},
+}
+local empty_opts = {{description = "", data = 0}}
+local function Title(title, hover)
+	return {
+		name = title,
+		hover = hover,
+		options = empty_opts,
+		default = 0,
+	}
+end
+
 configuration_options =
 {
+	Title("Client and server options", "You can change those settings even if you're not the server host (owner)"),
 	{
 		name = "TINT",
 		label = "Tint colour",
-		hover = "Which colour you want the tint to be? You can change it even if you're not the server host (owner)",
-		options =	{
-                        {description = "Red", data = 1}, 
-						{description = "Green", data = 2},
-						{description = "Blue", data = 3}, 
-					},
+		hover = "Which colour you want the tint to be?",
+		options = {
+			{description = "Red", data = 1}, 
+			{description = "Green", data = 2},
+			{description = "Blue", data = 3}, 
+		},
 		default = 1,
+	},
+	
+	{
+		name = "INGREDIENT",
+		label = "Ingredient highlighting",
+		hover = "Highlight chests that contain selected ingredient?",
+		options = bool_opts,
+		default = true,
+	},
+	
+	{
+		name = "ACTIVEITEM",
+		label = "Active item highlighting",
+		hover = "Highlight chests that containt item under your cursor?",
+		options = bool_opts,
+		default = true,
 	},
 }
