@@ -15,39 +15,8 @@ local CHEST_COLOURS = {
 	{0, 0, 1, 1},
 }
 
-local SELECTED_COLOUR = CHEST_COLOURS[TINT_CLR]
-
--- Idk why regular unpack doesn't work
-local function UnpackColour(clr)
-	return clr[1] or 1, clr[2] or 1, clr[3] or 1, clr[4] or 1
-end
-
-local function ApplyColour(inst)
-	Print("ApplyColour")
-	if not inst:IsValid() or not inst.AnimState then
-		return
-	end
-
-	if not inst._add_colour then
-		inst._add_colour = {inst.AnimState:GetAddColour()}
-	end
-
-	inst.AnimState:SetAddColour(UnpackColour(SELECTED_COLOUR))
-end
-
-local function ClearColour(inst)
-	Print("ClearColour")
-	if not inst:IsValid() or not inst.AnimState then
-		return
-	end
-	
-	if inst._add_colour then
-		inst.AnimState:SetAddColour(UnpackColour(inst._add_colour))
-		inst._add_colour = nil
-	else
-		inst.AnimState:SetAddColour(0, 0, 0, 0)
-	end
-end
+-- Mini-module that works like colouradder component
+local ColourManager = require("colour_manager")(CHEST_COLOURS[TINT_CLR])
 
 -- Server calls this on clients
 local HIGHLITED_ENTS = {}
@@ -56,11 +25,11 @@ AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT", function(chest)
 	-- Probably a bug? The last argument is allways some random function :|
 	chest = (chest and type(chest) ~= "function") and chest or nil
 	if chest then
-		ApplyColour(chest)
+		ColourManager:PushColour(chest, "highlight")
 		table.insert(HIGHLITED_ENTS, chest)
 	elseif next(HIGHLITED_ENTS) then
 		for i, ent in ipairs(HIGHLITED_ENTS) do
-			ClearColour(ent)
+			ColourManager:PopColour(ent, "highlight")
 		end
 		HIGHLITED_ENTS = {}
 	end
@@ -73,11 +42,11 @@ AddClientModRPCHandler("FINDER_REDUX", "HIGHLIGHT_ACTIVEITEM", function(chest)
 	Print("got client rpc (activeitem)", chest)
 	chest = (chest and type(chest) ~= "function") and chest or nil
 	if chest then
-		ApplyColour(chest)
+		ColourManager:PushColour(chest, "activeitem")
 		table.insert(HIGHLITED_ACTIVEITEM_ENTS, chest)
 	elseif next(HIGHLITED_ACTIVEITEM_ENTS) then
 		for i, ent in ipairs(HIGHLITED_ACTIVEITEM_ENTS) do
-			ClearColour(ent)
+			ColourManager:PopColour(ent, "activeitem")
 		end
 		HIGHLITED_ACTIVEITEM_ENTS = {}
 	end
